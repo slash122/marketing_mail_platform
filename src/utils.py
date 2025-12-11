@@ -1,12 +1,8 @@
 from email import message_from_bytes
 from typing import Dict
-from dotenv import load_dotenv
+from app_settings import app_settings
 from lxml import etree
-import json
-import os
 import google.generativeai as genai
-
-load_dotenv()
 
 def prepare_envelope(envelope) -> Dict:
     email_data = {}
@@ -21,14 +17,10 @@ def create_email_body_and_subject(email_data, envelope) -> str:
     email_data['subject'] = msg.get('Subject', 'No Subject')
     email_data['raw_body'] = msg.get_payload(decode=True).decode('utf-8', errors='replace')
 
-
-AI_API_KEY = os.getenv('AI_API_KEY')
-AI_MODEL_NAME = os.getenv('AI_MODEL_NAME')
-
 async def perform_ai_request(prompt: str) -> str:
     if not hasattr(perform_ai_request, "was_called"):
-        genai.configure(api_key=AI_API_KEY)
-        perform_ai_request.model = genai.GenerativeModel(AI_MODEL_NAME)
+        genai.configure(api_key=app_settings.AI_API_KEY)
+        perform_ai_request.model = genai.GenerativeModel(app_settings.AI_MODEL_NAME)
         perform_ai_request.was_called = True
     
     response = await perform_ai_request.model.generate_content_async(prompt)
