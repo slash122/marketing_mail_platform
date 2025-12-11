@@ -19,6 +19,6 @@ class MailHandler:
         time_received = int(time.time())
         email_raw_data = prepare_envelope(envelope)
         results = await JobExecutor(email_raw_data).execute_jobs()
-        create_mail_data = MailData.create_mail_data(time_received, envelope, email_raw_data, results)
-        print("Email processed.")
+        mail_data = MailData.create_mail_data(time_received, envelope, email_raw_data, results)
+        print("Mail Data:", mail_data.to_dict())
     

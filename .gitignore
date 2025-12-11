@@ -163,3 +163,7 @@ cython_debug/
 
 # VS Code
 .vscode/
+
+# Secrets
+src/ai_config.json
+ai_config.json
