@@ -1,8 +1,9 @@
 from rich import print
-from src.job_launcher import JobLauncher
+from src.job_executor import JobExecutor
 from src.mail_data import MailData
 from src.utils import prepare_envelope
 import threading
+import time
 
 class MailHandler:
     async def handle_DATA(self, server, session, envelope):
@@ -12,20 +13,12 @@ class MailHandler:
         await MailHandler.process_email(envelope)
         return '250 OK'
     
+    @staticmethod
     async def process_email(envelope):
         print("Processing email asynchronously...")
+        time_received = int(time.time())
         email_raw_data = prepare_envelope(envelope)
-        job_launcher = JobLauncher(email_raw_data)
-        results = await job_launcher.launch_jobs()
-        print(results)
+        results = await JobExecutor(email_raw_data).execute_jobs()
+        create_mail_data = MailData.create_mail_data(time_received, envelope, email_raw_data, results)
         print("Email processed.")
-
-    async def prepare_mail_data(self, envelope, email_raw_data, job_results):
-        mail_data = MailData(
-            sender = envelope.mail_from,
-            recipient = ', '.join(envelope.rcpt_tos),
-            subject = email_raw_data['etree'].xpath('//title/text()')[0] if email_raw_data['etree'].xpath('//title/text()') else 'No Subject',
-            body = email_raw_data['text'],
-            job_results = job_results,
-            raw_email = email_raw_data['raw_email']
-        )
+    
