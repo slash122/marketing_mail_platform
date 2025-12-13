@@ -24,19 +24,22 @@ class MailBase(SQLModel):
         return self.model_dump()
 
     @classmethod
-    def from_context(cls, mail_context: MailContext, time_received: int, job_results: List[Dict[str, Any]]):
-        prepared_results, errors = MailBase._prepare_job_results(job_results)
+    def from_context(cls, mail_context: MailContext):
         return cls(
-            time_received = time_received,
+            time_received = mail_context.time_received,
             sender = mail_context.sender,
             recipient = mail_context.recipient,
             subject = mail_context.subject,
-            body = mail_context.text,
-            job_results = prepared_results,  
+            body = mail_context.raw_body, 
             raw_email = mail_context.raw_email,
-            errors = errors,
-            state = MailState.FAILED if errors else MailState.PROCESSED
+            state = MailState.RECEIVED,
         )
+    
+    def append_job_results(self, raw_job_results: List[Dict[str, Any]]):
+        prepared_results, errors = self._prepare_job_results(raw_job_results)
+        self.job_results = prepared_results
+        self.errors = errors
+        self.state = MailState.FAILED if errors else MailState.PROCESSED
 
     @staticmethod
     def _prepare_job_results(raw_job_results):

@@ -18,8 +18,8 @@ class MailHandler:
     @staticmethod
     async def process_email(envelope):
         print("Processing email asynchronously...")
-        time_received = int(time.time())
         mail_context = MailContext.from_envelope(envelope)
+        mail_data = MailSQLite.from_context(mail_context)
         results = await JobExecutor(mail_context).execute_jobs()
-        mail_data = MailSQLite.from_context(mail_context, time_received, results)
+        mail_data.append_job_results(results)
         print("Mail Data:", mail_data.to_dict())
