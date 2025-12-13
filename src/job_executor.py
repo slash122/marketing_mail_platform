@@ -6,15 +6,15 @@ from pathlib import Path
 class JobExecutor:
     _job_classes = None
 
-    def __init__(self, raw_email_data):
-        self.raw_email_data = raw_email_data
+    def __init__(self, mail_context):
+        self.mail_context = mail_context
 
     async def execute_jobs(self):
         results = await asyncio.gather(*(job.execute() for job in self.create_jobs()))
         return results
 
     def create_jobs(self):
-        return [job_class(self.raw_email_data) for job_class in JobExecutor.get_job_classes()]
+        return [job_class(self.mail_context) for job_class in JobExecutor.get_job_classes()]
 
     @classmethod
     def get_job_classes(cls):
