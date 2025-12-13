@@ -1,10 +1,8 @@
-import asyncio
 from rich import print
 from src.job_executor import JobExecutor
 from src.mail_context import MailContext
 from src.models import MailSQLite 
 import threading
-import time
 
 class MailHandler:
     async def handle_DATA(self, server, session, envelope):
