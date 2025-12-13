@@ -7,7 +7,7 @@ class AppSettings(BaseSettings):
     MOCK_RESPONSES: bool = False
     SMTP_PORT: int = 1025
     SMTP_HOST: str = "0.0.0.0"
-
+    SQLITE_DB_PATH: str = "./mail_retention.db"
     class Config:
         env_file = ".env"
 
