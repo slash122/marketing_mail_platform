@@ -18,15 +18,9 @@ class MailContext:
         raw_email = envelope.content.decode('unicode_escape', errors='replace')
         msg = message_from_bytes(envelope.content)
         subject = msg.get('Subject', 'No Subject')
-        payload = msg.get_payload(decode=True)
-        raw_body = payload.decode('utf-8', errors='replace') if payload else ""
-        
-        if raw_body.strip():
-            html_tree = etree.fromstring(raw_body, parser=etree.HTMLParser())
-            text_content = etree.tostring(html_tree, method='text', encoding='unicode')
-        else:
-            html_tree = None
-            text_content = ""
+        raw_body = msg.get_payload(decode=True).decode('utf-8', errors='replace')
+        html_tree = etree.fromstring(raw_body, parser=etree.HTMLParser())
+        text_content = etree.tostring(html_tree, method='text', encoding='unicode')
 
         return cls(
             sender=envelope.mail_from,
