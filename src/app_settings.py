@@ -7,7 +7,7 @@ class AppSettings(BaseSettings):
     MOCK_RESPONSES: bool = False
     SMTP_PORT: int = 1025
     SMTP_HOST: str = "0.0.0.0"
-    SQLITE_DB_PATH: str = "./mail_retention.db"
+    SQLITE_DB_PATH: str = "./db/mail_retention.db"
     POSTGRES_CONNECTION_STR: str
     AZURE_STORAGE_CONNECTION_STRING: str
     AZURE_BLOB_CONTAINER_NAME: str = "mail-content-container"
