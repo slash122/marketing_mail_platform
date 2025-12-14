@@ -1,6 +1,5 @@
 from src.app_settings import app_settings
 from azure.storage.blob import BlobServiceClient
-from src.models import MailSQLite
 import uuid
 
 class BlobStorageConnector:
