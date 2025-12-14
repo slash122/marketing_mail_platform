@@ -14,16 +14,14 @@ class MailHandler:
         print("Message from:", envelope.mail_from)
         print("Message to:", envelope.rcpt_tos)
         asyncio.create_task(MailHandler.process_email(envelope))
-        print("250 OK - Email is being processed asynchronously.")
         return '250 OK'
     
     @staticmethod
     async def process_email(envelope):
-        print("Processing email asynchronously...")
         mail_data = await MailHandler.core_processing(envelope)
         if mail_data.state == MailState.PROCESSED:
             await MailHandler.save_to_main_db(mail_data)
-        print("Mail Data:", mail_data.to_dict())
+        print("Finished pipeline for mail, from: ", envelope.mail_from)
 
     @staticmethod
     async def core_processing(envelope):
