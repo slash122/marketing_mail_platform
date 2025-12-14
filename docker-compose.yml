@@ -1,0 +1,13 @@
+services:
+    smtp-server:
+        build: .
+        container_name: marketing_mail_server
+        env_file:
+            - .env
+        ports:
+            - "1025:1025"
+        volumes:
+            - ./mail_retention.db:/app/mail_retention.db
+        environment:
+            - PYTHONUNBUFFERED=1
+        restart: unless-stopped
