@@ -5,7 +5,7 @@ services:
         env_file:
             - .env
         ports:
-            - "1025:1025"
+            - "25:1025"
         volumes:
             - ./db:/app/db
         environment:
