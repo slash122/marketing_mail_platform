@@ -18,6 +18,7 @@ class MailContext:
     @classmethod
     def from_envelope(cls, envelope):
         raw_email = envelope.content.decode('unicode_escape', errors='replace')
+        print(raw_email)
         msg = message_from_bytes(envelope.content)
         subject = msg.get('Subject', 'No Subject')
         raw_body = msg.get_payload(decode=True).decode('utf-8', errors='replace')
