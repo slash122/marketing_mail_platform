@@ -1,4 +1,3 @@
-import asyncio
 from src.base_job import EmailJob
 from src.utils import perform_ai_request
 
