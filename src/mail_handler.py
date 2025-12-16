@@ -5,30 +5,30 @@ from src.db_connectors.sqlite_connector import sqlite_db
 from src.db_connectors.postgres_connector import postgres_db
 from src.db_connectors.blob_storage_connector import blob_storage
 from src.models import MailSQLite, MailPostgres, MailState
-import threading
+from src.logging.logger import logger
 import asyncio
 
 class MailHandler:
     async def handle_DATA(self, server, session, envelope):
-        print(f"[blue]Received on thread: {threading.get_ident()}[/blue]")
-        print("Message from:", envelope.mail_from)
-        print("Message to:", envelope.rcpt_tos)
+        logger.info(f"New message, from: {envelope.mail_from}, to: {envelope.rcpt_tos}")
         asyncio.create_task(process_email(envelope))
         return '250 OK'
     
-    
+
 async def process_email(envelope):
-    mail_data, mail_context = await save_to_retention_db(envelope)
+    mail_context = MailContext.from_envelope(envelope)
+    mail_data = await save_to_retention_db(mail_context)
+    logger.info(f"Saved email to retention DB, id: {mail_data.id}")
     mail_data = await core_processing(mail_data, mail_context)
+    logger.info(f"Completed jobs for mail, from: {envelope.mail_from}, retention db id: {mail_data.id}")
     if mail_data.state == MailState.PROCESSED:
         await save_to_main_db(mail_data)
-    print("Finished pipeline for mail, from: ", envelope.mail_from)
+    logger.info(f"Finished pipeline for mail, from: {envelope.mail_from}, main db id: {mail_data.external_id}")
 
-async def save_to_retention_db(envelope):
-    mail_context = MailContext.from_envelope(envelope)
+async def save_to_retention_db(mail_context) -> MailSQLite:
     mail_data = MailSQLite.from_context(mail_context)
     mail_data = await sqlite_db.save_email(mail_data)
-    return mail_data, mail_context
+    return mail_data
 
 async def core_processing(mail_data: MailSQLite, mail_context: MailContext):
     results = await JobExecutor(mail_context).execute_jobs()

@@ -43,13 +43,13 @@ class MailSQLite(MailBase, table=True):
         )
     
     def append_job_results(self, raw_job_results: List[Dict[str, Any]]):
-        prepared_results, errors = self._prepare_job_results(raw_job_results)
+        prepared_results, errors = self.__prepare_job_results(raw_job_results)
         self.job_results = prepared_results
         self.errors = errors
         self.state = MailState.FAILED if errors else MailState.PROCESSED
 
     @staticmethod
-    def _prepare_job_results(raw_job_results):
+    def __prepare_job_results(raw_job_results):
         prepared_results = {}
         errors = []
         for result_pair in raw_job_results:

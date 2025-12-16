@@ -4,7 +4,7 @@ import uuid
 
 class BlobStorageConnector:
     def __init__(self):
-        self.blob_service_client = BlobServiceClient.from_connection_string(app_settings.AZURE_STORAGE_CONNECTION_STRING)
+        self.blob_service_client = BlobServiceClient.from_connection_string(app_settings.AZURE_STORAGE_CONNECTION_STRING.get_secret_value())
         self.container_name = app_settings.AZURE_BLOB_CONTAINER_NAME
 
     async def save_email_blobs(self, raw_email, body):

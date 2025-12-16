@@ -3,14 +3,13 @@ import threading
 from src.mail_handler import MailHandler
 from aiosmtpd.controller import Controller
 from src.app_settings import app_settings
+from src.logging.logger import logger
 
-controller = Controller(MailHandler(), hostname=app_settings.SMTP_HOST, port=app_settings.SMTP_PORT)
-print(controller.hostname, controller.port)
-
+mail_smtp_server = Controller(MailHandler(), hostname=app_settings.SMTP_HOST, port=app_settings.SMTP_PORT)
 if __name__ == "__main__":
-    print("STARTING")
-    print(f"[blue]Main thread: {threading.get_ident()}[/blue]")
-    controller.start()
+    logger.info(f"SMTP Server starting on {app_settings.SMTP_HOST}:{app_settings.SMTP_PORT}")
+    mail_smtp_server.start()
+    logger.info(f"SMTP Server started on {app_settings.SMTP_HOST}:{app_settings.SMTP_PORT}")
     while True:
         pass
 

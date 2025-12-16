@@ -8,5 +8,4 @@ class AiSpamCheckJob(EmailJob):
         return bool(await perform_ai_request(prompt))
     
     async def mock_run(self):
-        await asyncio.sleep(0.1)
         return False 

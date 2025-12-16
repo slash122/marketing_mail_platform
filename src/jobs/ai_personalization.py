@@ -32,7 +32,6 @@ class AiPersonalizationJob(EmailJob):
             raise ValueError(f"Missing key in response JSON: {key}")
    
    async def mock_run(self):
-      await asyncio.sleep(0.1)
       return {
          "tech_stack": {"raw_score": 2, "weighted_points": 12},
          "subject_line": {"raw_score": 2, "weighted_points": 4},
