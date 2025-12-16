@@ -1,4 +1,3 @@
-from rich import print
 from src.job_executor import JobExecutor
 from src.mail_context import MailContext
 from src.db_connectors.sqlite_connector import sqlite_db
