@@ -1,5 +1,4 @@
 import functools
-import inspect
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -7,21 +6,7 @@ from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
 from src.app_settings import app_settings
 from src.logging.logger import logger
 
-tracer: trace.Tracer = None
-
-if app_settings.AZURE_LOGGING:
-    try:
-        tracer_provider = TracerProvider()
-        trace.set_tracer_provider(tracer_provider)
-        exporter = AzureMonitorTraceExporter(
-            connection_string=app_settings.AZURE_INSIGHTS_CONNECTION_STRING.get_secret_value()
-        )
-        span_processor = BatchSpanProcessor(exporter)
-        tracer_provider.add_span_processor(span_processor)
-        tracer = trace.get_tracer(app_settings.TRACER_NAME)
-        logger.info("Azure Tracing Enabled.")
-    except Exception as e:
-        logger.error(f"Failed to initialize Azure Tracing: {e}")
+tracer: trace.Tracer = trace.get_tracer(app_settings.TRACER_NAME)
 
 # Tracing decorator
 def trace_async(func):
