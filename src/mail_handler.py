@@ -13,31 +13,32 @@ class MailHandler:
         print(f"[blue]Received on thread: {threading.get_ident()}[/blue]")
         print("Message from:", envelope.mail_from)
         print("Message to:", envelope.rcpt_tos)
-        asyncio.create_task(MailHandler.process_email(envelope))
+        asyncio.create_task(process_email(envelope))
         return '250 OK'
     
-    @staticmethod
-    async def process_email(envelope):
-        mail_data = await MailHandler.core_processing(envelope)
-        if mail_data.state == MailState.PROCESSED:
-            await MailHandler.save_to_main_db(mail_data)
-        print("Finished pipeline for mail, from: ", envelope.mail_from)
 
-    @staticmethod
-    async def core_processing(envelope):
-        mail_context = MailContext.from_envelope(envelope)
-        mail_data = MailSQLite.from_context(mail_context)
-        mail_data = await sqlite_db.save_email(mail_data)
-        results = await JobExecutor(mail_context).execute_jobs()
-        mail_data.append_job_results(results)
-        await sqlite_db.update_email(mail_data)
-        return mail_data
-    
-    @staticmethod
-    async def save_to_main_db(mail_data: MailSQLite):
-        raw_email_url, body_url = await blob_storage.save_email_blobs(mail_data.raw_email, mail_data.body)
-        mail_data_main = MailPostgres.from_sqlite_model(mail_data, raw_email_url, body_url)
-        mail_id = await postgres_db.save_email(mail_data_main)
-        mail_data.external_id = mail_id
-        await sqlite_db.update_email(mail_data)
-        
+async def process_email(envelope):
+    mail_data, mail_context = await save_to_retention_db(envelope)
+    mail_data = await core_processing(mail_data, mail_context)
+    if mail_data.state == MailState.PROCESSED:
+        await save_to_main_db(mail_data)
+    print("Finished pipeline for mail, from: ", envelope.mail_from)
+
+async def save_to_retention_db(envelope):
+    mail_context = MailContext.from_envelope(envelope)
+    mail_data = MailSQLite.from_context(mail_context)
+    mail_data = await sqlite_db.save_email(mail_data)
+    return mail_data, mail_context
+
+async def core_processing(mail_data: MailSQLite, mail_context: MailContext):
+    results = await JobExecutor(mail_context).execute_jobs()
+    mail_data.append_job_results(results)
+    await sqlite_db.update_email(mail_data)
+    return mail_data
+
+async def save_to_main_db(mail_data: MailSQLite):
+    raw_email_url, body_url = await blob_storage.save_email_blobs(mail_data.raw_email, mail_data.body)
+    mail_data_main = MailPostgres.from_sqlite_model(mail_data, raw_email_url, body_url)
+    mail_id = await postgres_db.save_email(mail_data_main)
+    mail_data.external_id = mail_id
+    await sqlite_db.update_email(mail_data)
