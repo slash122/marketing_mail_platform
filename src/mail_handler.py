@@ -10,10 +10,12 @@ import asyncio
 
 class MailHandler:
     async def handle_DATA(self, server, session, envelope):
-        logger.info(f"New message, from: {envelope.mail_from}, to: {envelope.rcpt_tos}")
-        asyncio.create_task(process_email(envelope))
+        try:
+            logger.info(f"New message, from: {envelope.mail_from}, to: {envelope.rcpt_tos}")
+            asyncio.create_task(process_email(envelope))
+        except Exception as e:
+            logger.critical(f"Critical pipeline error: {e}")
         return '250 OK'
-        
 
 @trace_async
 async def process_email(envelope):
