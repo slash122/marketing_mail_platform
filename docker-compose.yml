@@ -1,0 +1,13 @@
+services:
+  smtp-server:
+    build: ./backend/mail_server  # Updated: relative path from root
+    container_name: marketing_mail_server
+    env_file:
+      - ./backend/mail_server/.env  # Updated: path to .env
+    ports:
+      - "25:1025"
+    volumes:
+      - ./backend/mail_server/db:/app/db  # Updated: path to db folder
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
