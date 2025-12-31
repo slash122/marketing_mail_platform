@@ -1,11 +1,5 @@
 from fastapi import FastAPI
+from api.router import router as api_router
 
 app = FastAPI(version="0.1")
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
+app.include_router(api_router)
