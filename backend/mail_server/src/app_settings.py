@@ -16,6 +16,7 @@ class AppSettings(BaseSettings):
     TRACER_NAME: str = "marketing-mail-server-tracer"
     AZURE_LOGGING: bool = False
     AZURE_INSIGHTS_CONNECTION_STRING: SecretStr
+    INIT_DB_ON_STARTUP: bool = True
     
     class Config:
         env_file = ".env"

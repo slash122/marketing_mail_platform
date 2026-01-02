@@ -11,7 +11,7 @@ class MailState(str, Enum):
 
 class MailBase(SQLModel):
     time_received: int
-    sender: str
+    sender: str 
     recipient: str
     subject: str
     state: MailState = Field(default=MailState.RECEIVED, index=True)

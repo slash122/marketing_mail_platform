@@ -14,7 +14,8 @@ class PostgresConnector:
         if app_settings.INIT_DB_ON_STARTUP: self.init_db()
 
     def init_db(self):
-        sync_engine = create_engine(f"postgresql+psycopg2://{app_settings.POSTGRES_CONNECTION_STRING.get_secret_value()}")
+        sync_engine = create_engine(f"postgresql+psycopg2://{app_settings.POSTGRES_CONNECTION_STRING.get_secret_value()}"
+                                    .replace("ssl=require", "sslmode=require"))
         SQLModel.metadata.create_all(sync_engine)
 
     async def save_email(self, mail: MailPostgres):

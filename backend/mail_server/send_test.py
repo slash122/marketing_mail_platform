@@ -8,5 +8,9 @@ msg["Subject"] = "Test Email"
 msg["From"] = "sender@example.com"
 msg["To"] = "receiver@example.com"
 
-with smtplib.SMTP("0.0.0.0", 1025) as server:
-    server.send_message(msg)
+try:
+    with smtplib.SMTP("0.0.0.0", 1025) as server:
+        server.send_message(msg)
+except Exception as e:
+    with smtplib.SMTP("localhost", 25) as server:
+        server.send_message(msg)
