@@ -1,5 +1,10 @@
 from fastapi import APIRouter
-from api.endpoints import test
+from src.api.endpoints import test
+from src.api.endpoints import users, accounts, senders
+
 
 router = APIRouter()
 router.include_router(test.router, prefix="/test", tags=["test"])
+router.include_router(users.router, tags=["users"])
+router.include_router(accounts.router, tags=["accounts"])
+router.include_router(senders.router, tags=["senders"])

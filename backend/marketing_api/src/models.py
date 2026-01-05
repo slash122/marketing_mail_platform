@@ -10,6 +10,11 @@ class SenderAccountLink(SQLModel, table=True):
     account_id: int = Field(default=None, foreign_key="account.id", primary_key=True)
 
 
+class AccountType(str, Enum):
+    ADMIN = "admin"
+    DEFAULT = "default"
+
+
 class Account(SQLModel, table=True):
     __tablename__ = "account"
     
@@ -17,6 +22,7 @@ class Account(SQLModel, table=True):
     name: str = Field(index=True, unique=True)
     info: str = Field(sa_column=Column("info", Text))
     is_active: bool = Field(default=True)
+    account_type: AccountType = Field(default=AccountType.DEFAULT)
 
     users: List["User"] = Relationship(back_populates="account")  # type: ignore
     senders: List["Sender"] = Relationship(back_populates="accounts", link_model=SenderAccountLink)  # type: ignore
@@ -31,7 +37,12 @@ class Sender(SQLModel, table=True):
     info: str = Field(sa_column=Column("info", Text))
 
     accounts: List["Account"] = Relationship(back_populates="senders", link_model=SenderAccountLink)  # type: ignore
-    mails: List["Mail"] = Relationship(back_populates="sender_model")  # type: ignore
+    mails: List["Mail"] = Relationship(
+        back_populates="sender_model",
+        sa_relationship_kwargs={
+            "primaryjoin": "foreign(Mail.sender) == Sender.mail_address"
+        }
+    )
 
 
 class MailState(str, Enum):
@@ -55,7 +66,14 @@ class Mail(SQLModel, table=True):
     job_results: Optional[Dict[str, Any]] = Field(default=None, sa_column=Column(JSON))
     errors: Optional[List[Dict[str, Any]]] = Field(default=None, sa_column=Column(JSON))
 
-    sender_model: Sender = Relationship(back_populates="mails")  # type: ignore
+    sender_model: Optional[Sender] = Relationship(
+        back_populates="mails",
+        sa_relationship_kwargs={
+            "primaryjoin": "foreign(Mail.sender) == Sender.mail_address",
+            "uselist": False,
+            "viewonly": True,
+        }
+    )
 
 
 class User(SQLModel, table=True):
